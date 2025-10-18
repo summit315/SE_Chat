@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Silent Exploiters — Ethical Q&A</title>
+  <meta name="description" content="Ethical Hacking Q&A (Bangla + English) — defensive, high-level guidance only." />
+  <style>
+  /* ---------- Embedded style.css (compact) ---------- */
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --muted:#9aa6b2;
+    --accent:#3b82f6;
+    --glass: rgba(255,255,255,0.03);
+    --max-w:1100px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:linear-gradient(180deg,var(--bg),#071026);
+    color:#e6eef6;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .site-header{
+    max-width:var(--max-w);
+    margin:18px auto 8px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    width:100%;
+  }
+  .brand h1{margin:0;font-size:1.1rem}
+  .brand .tag{margin:2px 0 0;font-size:0.8rem;color:var(--muted)}
+  .controls{display:flex;align-items:center;gap:8px}
+  .controls select, .controls button{background:var(--card);border:1px solid rgba(255,255,255,0.04);color:inherit;padding:6px 8px;border-radius:6px}
+  .controls .small{font-size:0.8rem;color:var(--muted)}
+  .container{
+    max-width:var(--max-w);
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:12px;
+    padding:12px;
+    flex:1;
+    width:100%;
+  }
+  .chat-area{
+    background:var(--card);
+    border-radius:12px;
+    padding:16px;
+    min-height:60vh;
+    overflow:auto;
+    box-shadow:0 6px 18px rgba(2,6,23,0.6);
+  }
+  .sidebar{
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    height:60vh;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .example{display:block;width:100%;margin:6px 0;padding:8px;border-radius:8px;background:var(--glass);border:none;color:inherit;cursor:pointer}
+  .composer{
+    grid-column:1 / -1;
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+    align-items:center;
+  }
+  textarea{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;resize:none}
+  #sendBtn{padding:10px 14px;border-radius:10px;background:var(--accent);border:none;color:#fff;cursor:pointer}
+  .message{margin:8px 0;display:flex;gap:10px}
+  .msg-user{justify-content:flex-end}
+  .bubble{max-width:78%;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.03);line-height:1.4}
+  .bubble.user{background:linear-gradient(90deg,#0b74ff,#2dd4bf);color:#041329;border-radius:12px 12px 4px 12px}
+  .bubble.bot{background:rgba(255,255,255,0.02);color:var(--muted)}
+  footer.site-footer{max-width:var(--max-w);margin:18px auto 40px;text-align:center;color:var(--muted)}
+  .switch{position:relative;display:inline-block;width:42px;height:24px}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#475569;border-radius:24px}
+  .slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:var(--accent)}
+  .switch input:checked + .slider:before{transform:translateX(18px)}
+  .small-muted{font-size:0.85rem;color:var(--muted)}
+  .top-row{display:flex;align-items:center;gap:12px}
+  code.inline{background:rgba(255,255,255,0.03);padding:2px 6px;border-radius:6px;font-family:monospace}
+  @media (max-width:900px){
+    .container{grid-template-columns:1fr; padding:10px}
+    .sidebar{order:2;height:auto}
+    .composer{position:sticky;bottom:12px;background:transparent;padding-top:8px}
+  }
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="brand">
+      <h1>Silent Exploiters</h1>
+      <p class="tag">Ethical Hacking Q&A (Bangla ↔ English)</p>
+    </div>
+    <div class="controls" role="navigation" aria-label="Controls">
+      <label class="switch" title="Toggle safety mode">
+        <input id="safetyToggle" type="checkbox" checked aria-checked="true" />
+        <span class="slider" aria-hidden="true"></span>
+      </label>
+      <span class="small">Safety ON</span>
+
+      <select id="langSelect" aria-label="Language toggle">
+        <option value="auto">Auto</option>
+        <option value="bn">Bangla</option>
+        <option value="en">English</option>
+      </select>
+
+      <button id="clearBtn" title="Clear history">Clear</button>
+      <button id="exportBtn" title="Export chat">Export</button>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <section class="chat-area" id="chatArea" aria-live="polite" aria-label="Chat conversation"></section>
+
+    <aside class="sidebar" aria-label="Examples and settings">
+      <h3>Example Prompts</h3>
+      <div id="examples" role="list">
+        <button class="example" role="listitem">How to set up a safe learning lab?</button>
+        <button class="example" role="listitem">Defensive checklist for a small web app</button>
+        <button class="example" role="listitem">High-level log analysis steps</button>
+        <button class="example" role="listitem">How to responsibly disclose a vulnerability?</button>
+        <button class="example" role="listitem">Common vulnerability categories explained</button>
+        <button class="example" role="listitem">Basic incident response steps</button>
+      </div>
+
+      <div class="settings">
+        <h4>Admin / Config</h4>
+        <p class="small-muted">API endpoint: <code class="inline" id="apiEndpoint">[edit APP_CONFIG below]</code></p>
+        <p class="small-muted">To enable real replies, host a server-proxy and set the endpoint in APP_CONFIG. Never put secret keys in client-side code.</p>
+      </div>
+    </aside>
+
+    <form id="chatForm" class="composer" autocomplete="off" aria-label="Chat composer">
+      <textarea id="userInput" placeholder="Type your question about ethical hacking..." rows="1" aria-label="Your question"></textarea>
+      <button type="submit" id="sendBtn" aria-label="Send">Send</button>
+    </form>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <small>Safety-first: Answers are defensive, high-level, and non-actionable.</small>
+  </footer>
+
+  <!-- ---------- Embedded config.example.js (edit here, DO NOT commit secrets) ---------- -->
+  <script>
+  // Copy this file to config.js in production OR edit here temporarily for testing.
+  // IMPORTANT: Do NOT put your real API secret here in a public repo.
+  window.APP_CONFIG = {
+    // Set server endpoint (your server-side proxy) to forward requests to OpenAI/Gemini.
+    // Example: "https://your-proxy.example.com/api/ai"
+    // Leave empty for mock safe replies.
+    endpoint: ""
+  };
+  </script>
+
+  <!-- ---------- Embedded script.js (frontend logic) ---------- -->
+  <script>
+  // Frontend chat logic: localStorage history, example prompts, safety toggle, mock/API placeholder.
+  (function(){
+    const chatArea = document.getElementById('chatArea');
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const examples = document.getElementById('examples');
+    const safetyToggle = document.getElementById('safetyToggle');
+    const langSelect = document.getElementById('langSelect');
+    const apiEndpointEl = document.getElementById('apiEndpoint');
+
+    const APP = window.APP_CONFIG || { endpoint: "" };
+    apiEndpointEl.textContent = APP.endpoint || "[edit APP_CONFIG in page]";
+
+    const STORAGE_KEY = 'se_chat_history_v1';
+    let history = loadHistory();
+    renderHistory();
+
+    // Example prompt click
+    examples.addEventListener('click', (e) => {
+      if(e.target.classList.contains('example')){
+        const txt = e.target.innerText.trim();
+        userInput.value = txt;
+        sendMessage(txt);
+      }
+    });
+
+    // Submit form
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const txt = userInput.value.trim();
+      if(!txt) return;
+      sendMessage(txt);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if(confirm('Clear chat history?')) {
+        history = [];
+        saveHistory();
+        renderHistory();
+      }
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const blob = new Blob([history.map(h => `${h.role.toUpperCase()}: ${h.text}`).join("\n\n")], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'chat_export.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    function loadHistory(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      }catch{
+        return [];
+      }
+    }
+    function saveHistory(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    }
+    function renderHistory(){
+      chatArea.innerHTML = '';
+      history.forEach(h => {
+        const m = document.createElement('div');
+        m.className = 'message ' + (h.role === 'user' ? 'msg-user' : 'msg-bot');
+        const b = document.createElement('div');
+        b.className = 'bubble ' + (h.role === 'user' ? 'user' : 'bot');
+        // allow simple newlines
+        b.innerText = h.text;
+        m.appendChild(b);
+        chatArea.appendChild(m);
+      });
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    async function sendMessage(text){
+      // push user
+      history.push({role:'user', text});
+      saveHistory();
+      renderHistory();
+
+      // show a placeholder bot message
+      const loadingIndex = history.push({role:'assistant', text:'Thinking...'}) - 1;
+      saveHistory();
+      renderHistory();
+
+      const safetyOn = safetyToggle.checked;
+      const lang = detectLanguage() || langSelect.value || 'en';
+
+      try{
+        // If endpoint configured, attempt fetch; otherwise mock safe reply
+        if(APP.endpoint && APP.endpoint.trim().length>0){
+          const reply = await callAPIForReply(text, {safetyOn, lang});
+          history[loadingIndex] = {role:'assistant', text:reply};
+        } else {
+          // Mock safe reply
+          const reply = mockSafeReply(text, {safetyOn, lang});
+          history[loadingIndex] = {role:'assistant', text:reply};
+        }
+      }catch(err){
+        history[loadingIndex] = {role:'assistant', text:'Sorry, an error occurred while generating the reply.'};
+        console.error(err);
+      }
+
+      saveHistory();
+      renderHistory();
+      userInput.value = '';
+    }
+
+    // Simple language detection (very naive)
+    function detectLanguage(){
+      const v = langSelect.value;
+      if(v && v!=='auto') return v;
+      const sample = userInput.value || '';
+      if(/[অআইঈউঊঋএঐওঔংঃ]/.test(sample)) return 'bn';
+      return 'en';
+    }
+
+    function mockSafeReply(userText, {safetyOn, lang}){
+      const header = (lang==='bn') ? "নিরাপত্তা কনটেক্সট —" : "Safety note —";
+      const bodyBn = [
+        "এটি শিক্ষামূলক ও প্রতিরক্ষামূলক নির্দেশাবলী: নির্দিষ্ট আক্রমণের পদ্ধতি বা এক্সপ্লয়ট কোড দেওয়া হবে না।",
+        "শেখার জন্য আলাদা ল্যাব (VM/container) ব্যবহার করো, অনুমতি ছাড়া কোনো সিস্টেমে পরীক্ষা করো না।",
+        "প্রাথমিক পদক্ষেপ: লগ সংগ্রহ, সফটওয়্যার প্যাচ, কনফিগারেশন রিভিউ, এবং দায়িত্বশীল রিপোর্টিং।"
+      ].join(" ");
+      const bodyEn = [
+        "This is defensive, educational guidance: no exploit code or step-by-step attack instructions will be provided.",
+        "For learning, use isolated labs (VMs/containers) and always have proper authorization.",
+        "Initial steps: collect logs, apply patches, review configuration, and follow responsible disclosure."
+      ].join(" ");
+      if(lang==='bn'){
+        return `${header} ${bodyBn}`;
+      } else {
+        return `${header} ${bodyEn}`;
+      }
+    }
+
+    /*
+      callAPIForReply:
+      - This function demonstrates how to call your server-side proxy endpoint.
+      - The client must NOT hold secret keys. Use a proxy that injects the API key server-side.
+      - Adjust parsing according to your provider's response structure.
+    */
+    async function callAPIForReply(userText, {safetyOn, lang}){
+      // Example client->proxy payload
+      const payload = {
+        messages: [
+          {role: "system", content: "You are an ethical, defensive cybersecurity assistant. Provide high-level, non-actionable guidance and legal cautions."},
+          {role: "user", content: userText}
+        ],
+        max_tokens: 600,
+        temperature: 0.2
+      };
+
+      const res = await fetch(APP.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+          // Authorization: handled server-side
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if(!res.ok){
+        throw new Error('API response not OK: ' + res.status);
+      }
+      const data = await res.json();
+
+      // Try common shapes: OpenAI-style chat completions
+      if(data.choices && data.choices[0] && data.choices[0].message){
+        return data.choices[0].message.content.trim();
+      }
+      // Another possible shape: { reply: "..." }
+      if(data.reply) return data.reply.trim();
+      // fallback: stringify limited
+      return (typeof data === 'string') ? data : JSON.stringify(data).slice(0,1500);
+    }
+
+    // expose for debugging (optional)
+    window.SE_APP = {
+      sendMessageManual: (t) => sendMessage(t),
+      getHistory: () => history,
+      clearHistory: () => { history=[]; saveHistory(); renderHistory(); }
+    };
+  })();
+  </script>
+
+  <!-- ---------- Embedded README (visible here for convenience) ---------- -->
+  <!--
+    README Quick Notes:
+
+    1) Deploy:
+       - Create GitHub repo, upload this index.html as root file.
+       - Repo Settings -> Pages -> Source: main branch, root -> Save
+       - Visit: https://<your-username>.github.io/<repo-name>/
+
+    2) Enabling real AI replies (recommended):
+       - Do NOT put API keys in client-side code.
+       - Create a small server (Node/Express, Vercel serverless, etc.) that:
+         a) accepts POST from client (e.g., { messages, max_tokens })
+         b) calls the AI provider (OpenAI/Gemini) with your secret key
+         c) returns provider response to client
+       - Set window.APP_CONFIG.endpoint to your server URL (edit in the top config block).
+
+    3) Safety:
+       - This frontend enforces a 'safety mode' UI toggle and uses a defensive system prompt in examples.
+       - Project intended for educational/defensive use only. No exploit code, malware, or unauthorized access guidance.
+
+    4) Customization:
+       - Edit example prompts in the sidebar area (buttons).
+       - Change brand text "Silent Exploiters" at top.
+       - To export chat, press Export. To clear, press Clear.
+
+    5) Creating demo.zip locally:
+       zip -r demo.zip index.html
+
+    If you want, I can also generate a server-proxy example (Node/Express) in the repo — tell me "send server proxy".
+  -->
+
+</body>
+</html>
